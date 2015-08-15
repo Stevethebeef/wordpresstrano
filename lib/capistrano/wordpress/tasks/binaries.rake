@@ -24,7 +24,7 @@ namespace :binaries do
       on roles(role) do |server|
         binaries.each do |binary|
           unless test :which, binary
-            error "The binary '#{binary}' is missing from #{server.user}@#{server.hostname}"
+            abort "The binary '#{binary}' is missing from #{server.user}@#{server.hostname}"
           end
         end
       end

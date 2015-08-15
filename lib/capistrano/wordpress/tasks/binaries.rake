@@ -1,6 +1,8 @@
 namespace :binaries do
   desc "Check that all required binaries are installed"
   task :check do
+    next if true == fetch(:checked_binaries)
+    
     required_binaries = {
       local: [:php, :rsync, :wp],
       remote: {
@@ -27,5 +29,7 @@ namespace :binaries do
         end
       end
     end
+    
+    set :checked_binaries, true
   end
 end

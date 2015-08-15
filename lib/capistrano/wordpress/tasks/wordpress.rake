@@ -27,6 +27,32 @@ namespace :wp do
         execute :rm, "-rf", tmp_dir
       end
     end
+    
+    desc "Remove the WordPress core files from the release"
+    task :remove do
+      on roles(:app) do
+        within release_path do
+          paths = []
+          
+          excludes = [".", "wp-config.php"]
+          excludes = excludes.map { |e| "! -name '#{e}' " }.join(" ").squeeze(" ").strip
+          
+          ["index.php", "wp-*", "xmlrpc.php"].each do |glob|
+            find_output = capture :find, ".", "-maxdepth 1", "-name '#{glob}'", excludes
+            
+            paths.concat(find_output.split("\n"))
+          end
+          
+          next if 1 > paths.length
+          
+          info "Removing #{paths.length} WordPress core file(s)"
+          
+          paths.each do |path|
+            execute :rm, "-rf", path
+          end
+        end
+      end
+    end
   end
   
   desc "Execute a WordPress CLI command"

@@ -1,11 +1,11 @@
 # Check binaries before deploying
 before "deploy", "binaries:check"
 
-# Deploy resources before deploying
-before "deploy", "deploy:resources"
+# Deploy shared configuration files before deploying
+before "deploy", "deploy:shared_configs"
 
-# Check directories before deploying resources
-before "deploy:resources", "deploy:check:directories"
+# Check directories before deploying shared configurations
+before "deploy:shared_configs", "deploy:check:directories"
 
 # Remove the existing WordPress core before downloading a new one
 before "wp:core:download", "wp:core:remove"
@@ -27,6 +27,9 @@ before "deploy:updated", "wp:core:download"
 
 # Check directories before pushing a htaccess file
 before "htaccess:push", "deploy:check:directories"
+
+# Push the local .htaccess file before publishing the deployment
+before "deploy:publishing", "htaccess:push"
 
 # Push the local database before publishing the deployment
 #before "deploy:publishing", "db:push"

@@ -5,6 +5,9 @@ before "deploy:check", "binaries:check"
 before "wp:core:download", "binaries:check"
 before "wp:core:remove", "binaries:check"
 
+# Remove existing WordPress core files before downloading a new ones
+before "wp:core:download", "wp:core:remove"
+
 # Deploy resources before deploying
 #before "deploy", "deploy:resources"
 

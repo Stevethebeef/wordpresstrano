@@ -2,8 +2,6 @@ namespace :wp do
   namespace :core do
     desc "Download the WordPress core files into the release"
     task :download do
-      invoke 'wp:core:remove'
-      
       on roles(:app) do |server|
         version = fetch(:wp_version, ENV["version"])
         

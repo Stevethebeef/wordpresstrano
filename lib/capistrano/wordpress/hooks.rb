@@ -19,6 +19,9 @@ before "wp:core:download", "binaries:check"
 # Check binaries before removing the WordPress core
 before "wp:core:remove", "binaries:check"
 
+# Check directories before generating a wp-config.php file
+before "config:generate", "deploy:check:directories"
+
 # Check directories before generating a robots.txt file
 before "robots:generate", "deploy:check:directories"
 
@@ -30,6 +33,9 @@ after "deploy:symlink:release", "wp:core:download"
 
 # Set permissions on the website root
 #after "deploy:finished", "webroot:setperms"
+
+# Set permissions on the wp-config.php file after generating
+after "config:generate", "config:setperms"
 
 # Set permissions on the robots.txt file after generating
 after "robots:generate", "robots:setperms"

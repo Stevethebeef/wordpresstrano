@@ -1,19 +1,29 @@
-# Check for binaries before deploying
-before "deploy:check", "binaries:check"
-
-# Check for binaries before WordPress tasks
-before "wp:core:download", "binaries:check"
-before "wp:core:remove", "binaries:check"
-
-# Remove existing WordPress core files before downloading a new ones
-before "wp:core:download", "wp:core:remove"
+# Check binaries before deploying
+before "deploy", "binaries:check"
 
 # Deploy resources before deploying
 #before "deploy", "deploy:resources"
 
-# Download the WordPress core after downloading a release
-#after "deploy:symlink:release", "wp:core:download"
+# Check directories before deploying resources
+#before "deploy:resources", "deploy:check:directories"
 
-# Link the current release into the website root after deploying
-#after "deploy:finished", "webroot:setperms"
+# Push the local database before finishing a deployment
+before "deploy:finishing", "db:push"
+
+# Remove the existing WordPress core before downloading a new one
+before "wp:core:download", "wp:core:remove"
+
+# Check binaries before downloading the WordPress core
+before "wp:core:download", "binaries:check"
+
+# Check binaries before removing the WordPress core
+before "wp:core:remove", "binaries:check"
+
+# Download the WordPress core after symlinking the release
+after "deploy:symlink:release", "wp:core:download"
+
+# Link the new release into the website root
 #after "deploy:finished", "webroot:symlink"
+
+# Set permissions on the website root
+#after "deploy:finished", "webroot:setperms"

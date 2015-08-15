@@ -3,6 +3,8 @@ namespace :webroot do
   task :symlink do
     remote_path = fetch(:website_root)
     
+    next unless remote_path
+    
     on roles(:app) do |server|
       if test("[ -d #{remote_path} ]")
         execute :rm, "-rf", remote_path
@@ -17,6 +19,8 @@ namespace :webroot do
   desc "Set permissions on the uploads directory"
   task :setperms do
     remote_path = fetch(:website_root)
+    
+    next unless remote_path
     
     on roles(:app) do |server|
       unless test("[ -d #{remote_path} ]")

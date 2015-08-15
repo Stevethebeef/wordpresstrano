@@ -21,4 +21,23 @@ namespace :wp do
       execute :rm, "-rf", tmp_dir
     end
   end
+  
+  desc "Execute a WordPress CLI command"
+  task :exec do
+    set :wp_exec_command, ask("The WordPress CLI command to execute", "help")
+    
+    unless fetch(:wp_exec_command)
+      abort "You didn't enter a command to execute"
+    end
+    
+    on roles(:all) do |server|
+      next if ENV["role"] and !server.roles.map { |role| role.to_s }.include? ENV["role"]
+      
+      within release_path do
+        puts capture :wp, fetch(:wp_exec_command)
+      end
+    end
+    
+    set :wp_exec_command, nil
+  end
 end

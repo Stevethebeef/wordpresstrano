@@ -1,12 +1,12 @@
 namespace :robots do
   desc "Generate a robots.txt file"
   task :generate do
+    file = "robots.txt"
+    
+    remote_path = File.join(shared_path, file)
+    
     on roles(:app) do |server|
-      file = "robots.txt"
-      
       info "Generating a #{file} file on #{server.user}@#{server.hostname}"
-      
-      remote_path = File.join(shared_path, file)
       
       if :production != fetch(:stage)
         debug "Disallowing all user agents in #{file} on #{server.user}@#{server.hostname}"
@@ -20,11 +20,11 @@ namespace :robots do
   
   desc "Set permissions on the robots.txt file"
   task :setperms do
+    file = "robots.txt"
+    
+    remote_path = File.join(shared_path, file)
+    
     on roles(:app) do |server|
-      file = "robots.txt"
-      
-      remote_path = File.join(shared_path, file)
-      
       unless test("[ -f #{remote_path} ]")
         error "A #{file} file does not exist on #{server.user}@#{server.hostname}"
       end

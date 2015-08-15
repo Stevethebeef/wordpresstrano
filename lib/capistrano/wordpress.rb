@@ -14,3 +14,6 @@ set :linked_files, fetch(:linked_files, []).push(".htaccess", "robots.txt", "wp-
 
 # Tell capistrano about directories we want linked into releases
 set :linked_dirs, fetch(:linked_dirs, []).push("wp-content/uploads")
+
+# Deploy our resources before running the deploy command
+before "deploy", "deploy:resources"

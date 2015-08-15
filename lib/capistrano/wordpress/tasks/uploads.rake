@@ -51,8 +51,8 @@ namespace :uploads do
       
       info "Setting permissions for the uploads directory on #{server.user}@#{server.hostname}"
       
-      execute :find, remote_path, "-type d", "-exec", :chmod, "755", "{}", "\\;"
-      execute :find, remote_path, "-type f", "-exec", :chmod, "644", "{}", "\\;"
+      execute :find, remote_path, "-type d", "-exec", :chmod, 755, "{}", "\\;"
+      execute :find, remote_path, "-type f", "-exec", :chmod, 644, "{}", "\\;"
     end
   end
 end

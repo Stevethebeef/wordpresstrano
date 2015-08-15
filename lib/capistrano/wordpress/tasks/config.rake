@@ -9,7 +9,16 @@ namespace :config do
     template_content = File.read(template_path)
     
     run_locally do
-      database = fetch(:local_database_config)
+      database_config = fetch(:local_database_config)
+      
+      unless database_config.has_keys? :hostname, :username, :database, :password
+        abort "The local database configuration is invalid"
+      end
+      
+      database_hostname = database_config[:hostname]
+      database_username = database_config[:username]
+      database_name = database_config[:database]
+      database_password = database_config[:password]
       
       secret_keys = Net::HTTP.get URI("https://api.wordpress.org/secret-key/1.1/salt")
       
@@ -28,7 +37,16 @@ namespace :config do
       File.write(file, configuration)
     end
     
-    database = fetch(:database_config)
+    database_config = fetch(:database_config)
+    
+    unless database_config.has_keys? :hostname, :username, :database, :password
+      abort "The #{fetch(:stage)} database configuration is invalid"
+    end
+    
+    database_hostname = database_config[:hostname]
+    database_username = database_config[:username]
+    database_name = database_config[:database]
+    database_password = database_config[:password]
     
     secret_keys = Net::HTTP.get URI("https://api.wordpress.org/secret-key/1.1/salt")
     

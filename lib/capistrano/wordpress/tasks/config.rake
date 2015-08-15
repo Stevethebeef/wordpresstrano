@@ -9,18 +9,12 @@ namespace :config do
     template_content = File.read(template_path)
     
     run_locally do
-      info "Fetching local configuration for #{file}"
-      
       database = fetch(:local_database_config)
-      
-      unless database.is_a? Hash and database.has_keys? :hostname, :name, :username, :password
-        error "The local database configuration is invalid"
-      end
       
       secret_keys = Net::HTTP.get URI("https://api.wordpress.org/secret-key/1.1/salt")
       
       if secret_keys.nil? or secret_keys.empty?
-        error "Unable to fetch secret keys using the WordPress API"
+        abort "Unable to fetch secret keys using the WordPress API"
       end
       
       configuration = ERB.new(template_content).result(binding)
@@ -34,18 +28,12 @@ namespace :config do
       File.write(file, configuration)
     end
     
-    info "Fetching remote configuration for #{file}"
-    
     database = fetch(:database_config)
-    
-    unless database.is_a? Hash and database.has_keys? :hostname, :name, :username, :password
-      error "The database configuration is invalid for #{server.user}@#{server.hostname}"
-    end
     
     secret_keys = Net::HTTP.get URI("https://api.wordpress.org/secret-key/1.1/salt")
     
     if secret_keys.nil? or secret_keys.empty?
-      error "Unable to fetch secret keys using the WordPress API"
+      abort "Unable to fetch secret keys using the WordPress API"
     end
     
     configuration = ERB.new(template_content).result(binding)

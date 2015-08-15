@@ -24,7 +24,7 @@ namespace :deploy do
         invoke "robots:generate"
       end
       
-      #invoke "htaccess:push"
+      invoke "htaccess:push"
       #invoke "uploads:push"
     end
   end

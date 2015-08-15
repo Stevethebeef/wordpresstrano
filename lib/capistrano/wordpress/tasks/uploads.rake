@@ -13,7 +13,7 @@ namespace :uploads do
     end
     
     on roles(:app) do |server|
-      if current_path
+      if current_path and (ENV["clone_uploads"].empty? or [true, "true", "yes", "y"].include? ENV["clone_uploads"].downcase)
         actual_current_path = capture("readlink -f #{current_path}").strip
         actual_release_path = capture("readlink -f #{release_path}").strip
         

@@ -34,7 +34,7 @@ namespace :wp do
         within release_path do
           paths = []
           
-          excludes = [".", "wp-config.php"]
+          excludes = [".", "wp-config.php", "wp-content"]
           excludes = excludes.map { |e| "! -name '#{e}' " }.join(" ").squeeze(" ").strip
           
           ["index.php", "wp-*", "xmlrpc.php"].each do |glob|

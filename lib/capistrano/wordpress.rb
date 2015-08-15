@@ -17,3 +17,6 @@ set :linked_dirs, fetch(:linked_dirs, []).push("wp-content/uploads")
 
 # Deploy our resources before running the deploy command
 before "deploy", "deploy:resources"
+
+# Download the WordPress core to the new release
+after "deploy:symlink:release", "wp:core:download"

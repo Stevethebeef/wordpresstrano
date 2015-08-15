@@ -5,7 +5,7 @@ namespace :deploy do
     #set :confirm_push_database, true
     
     on roles(:app) do
-      #config_path = File.join(shared_path, "wp-config.php")
+      config_path = File.join(shared_path, "wp-config.php")
       robots_path = File.join(shared_path, "robots.txt")
       
       #if test("[ -d #{release_path} ]")
@@ -16,9 +16,9 @@ namespace :deploy do
       #  end
       #end
       
-      #unless test("[ -f #{config_path} ]")
-      #  invoke "config:generate"
-      #end
+      unless test("[ -f #{config_path} ]")
+        invoke "config:generate"
+      end
       
       unless test("[ -f #{robots_path} ]")
         invoke "robots:generate"

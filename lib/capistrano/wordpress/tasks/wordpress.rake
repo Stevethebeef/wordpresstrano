@@ -2,6 +2,8 @@ namespace :wp do
   namespace :core do
     desc "Download the WordPress core files into the release"
     task :download do
+      invoke 'wp:core:remove'
+      
       on roles(:app) do |server|
         version = fetch(:wp_version, ENV["version"])
         
@@ -10,8 +12,6 @@ namespace :wp do
         tmp_dir = File.join(fetch(:tmp_dir), SecureRandom.hex(8))
         
         execute :mkdir, "-p", tmp_dir
-        
-        invoke 'wp:core:remove'
         
         within tmp_dir do
           execute :wp, "core", "download", (version ? "--version=#{version}" : "")

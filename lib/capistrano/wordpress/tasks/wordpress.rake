@@ -14,9 +14,11 @@ namespace :wp do
         within tmp_dir do
           execute :wp, "core", "download", (version ? "--version=#{version}" : "")
           
-          paths = capture :find, ".", "-maxdepth 1", "! -name .", "! -name 'wp-content'"
-          paths = paths.split("\n")
+          excludes = [".", "license.txt", "readme.html", "wp-config-sample.php", "wp-content"]
+          excludes = excludes.map { |e| "! -name '#{e}' " }.join(" ").squeeze(" ").strip
           
+          paths = capture :find, ".", "-maxdepth 1", excludes
+          paths = paths.split("\n")
           paths.each do |path|
             execute :cp, "-R", path, release_path
           end

@@ -3,6 +3,7 @@ namespace :config do
   task :generate do
     file = "wp-config.php"
     
+    local_path = File.join(Dir.pwd, file)
     remote_path = File.join(shared_path, file)
     
     template_path = File.join("config", "templates", "#{file}.erb")
@@ -28,13 +29,13 @@ namespace :config do
       
       configuration = ERB.new(template_content).result(binding)
       
-      if test("[ -f #{file} ]")
-        execute :rm, "-f", file
+      if test("[ -f #{local_path} ]")
+        execute :rm, "-f", local_path
       end
       
       info "Writing local #{file} file"
       
-      File.write(file, configuration)
+      File.write(local_path, configuration)
     end
     
     database_config = fetch(:database_config)

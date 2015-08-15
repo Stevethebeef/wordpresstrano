@@ -42,3 +42,6 @@ after "config:generate", "config:setperms"
 
 # Set permissions on the robots.txt file after generating
 after "robots:generate", "robots:setperms"
+
+# Set permissions on the .htaccess file after pushing
+after "htaccess:push", "htaccess:setperms"

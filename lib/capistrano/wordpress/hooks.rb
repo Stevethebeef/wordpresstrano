@@ -22,6 +22,10 @@ before "config:generate", "deploy:check:directories"
 # Check directories before generating a robots.txt file
 before "robots:generate", "deploy:check:directories"
 
+# Load the local WordPress version so that when downloading the
+# WordPress core on a remote server, the version matches the local installation.
+before "deploy:updated", "wp:core:load_local_version"
+
 # Download the WordPress core before calling updated on the release
 before "deploy:updated", "wp:core:download"
 

@@ -1,5 +1,18 @@
 namespace :wp do
   namespace :core do
+    # Load the local version (for use with wp:core:deploy)
+    task :load_local_version do
+      run_locally do
+        version_script_path = File.join(Dir.pwd, "wp-includes", "version.php")
+        
+        unless File.file? version_script_path
+          abort "No valid WordPress installation could be found locally"
+        end
+        
+        set :wp_version, capture("php -r \"include '#{version_script_path}'; echo \\$wp_version;\"")
+      end
+    end
+    
     desc "Download the WordPress core files into the release"
     task :download do
       on roles(:app) do |server|

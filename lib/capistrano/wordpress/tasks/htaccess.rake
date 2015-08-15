@@ -45,4 +45,23 @@ namespace :htaccess do
       upload! file, remote_file
     end
   end
+  
+  desc "Set permissions on the .htaccess file"
+  task :setperms do
+    file = ".htaccess"
+    
+    remote_path = File.join(shared_path, file)
+    
+    on roles(:app) do |server|
+      unless test("[ -f #{remote_path} ]")
+        info "No #{file} file found on #{server.user}@#{server.hostname}"
+        
+        next
+      end
+      
+      info "Setting permissions for #{file} on #{server.user}@#{server.hostname}"
+      
+      execute :chmod, 644, remote_path
+    end
+  end
 end

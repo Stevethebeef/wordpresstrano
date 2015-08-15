@@ -14,12 +14,15 @@ namespace :uploads do
     
     on roles(:app) do |server|
       if current_path
-        current_remote_path = File.join(current_path, directory)
+        actual_current_path = capture("readlink -f #{current_path}").strip
+        actual_release_path = capture("readlink -f #{release_path}").strip
         
-        if capture("readlink -f #{current_path}").strip != release_path and test("[ -d #{current_remote_path} ]")
+        previous_remote_path = File.join(actual_current_path, directory)
+        
+        if actual_current_path != actual_release_path and test("[ -d #{previous_remote_path} ]")
           debug "Cloning uploads directory from current release on #{server.user}@#{server.hostname}"
           
-          execute :cp, "-R", "--preserve=timestamps", current_remote_path, remote_path
+          execute :cp, "-R", "--preserve=timestamps", previous_remote_path, remote_path
         end
       end
       

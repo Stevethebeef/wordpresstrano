@@ -3,19 +3,22 @@ namespace :wp do
     desc "Download the WordPress core files into the release"
     task :download do
       on roles(:app) do |server|
-        wp_version = fetch(:wp_version, ENV['version'])
+        version = fetch(:wp_version, ENV["version"])
         
-        info "Downloading WordPress Core" + (wp_version ? " (Version #{wp_version})" : "")
+        info "Downloading WordPress Core" + (version ? " (Version #{version})" : "")
         
-        tmp_dir = File.join(fetch(:tmp_dir), SecureRandom.hex)
+        tmp_dir = File.join(fetch(:tmp_dir), SecureRandom.hex(8))
         
         execute :mkdir, "-p", tmp_dir
         
         within tmp_dir do
-          execute :wp, "core", "download", (wp_version ? "--version=#{wp_version}" : "")
+          execute :wp, "core", "download", (version ? "--version=#{version}" : "")
           
-          wp_files.each do |glob|
-            execute :cp, "-R", File.join(".", glob), release_path
+          paths = capture :find, ".", "-maxdepth 1", "! -name .", "! -name 'wp-content'"
+          paths = paths.split("\n")
+          
+          paths.each do |path|
+            execute :cp, "-R", path, release_path
           end
         end
         

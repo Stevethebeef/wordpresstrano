@@ -3,7 +3,7 @@ namespace :htaccess do
   task :push do
     file = ".htaccess"
     
-    remote_file = File.join(shared_path, file)
+    remote_file = File.join(release_path, file)
     
     on roles(:app) do |server|
       unless File.file? file
@@ -50,7 +50,7 @@ namespace :htaccess do
   task :setperms do
     file = ".htaccess"
     
-    remote_path = File.join(shared_path, file)
+    remote_path = File.join(release_path, file)
     
     on roles(:app) do |server|
       unless test("[ -f #{remote_path} ]")

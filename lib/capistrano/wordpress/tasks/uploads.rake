@@ -19,7 +19,7 @@ namespace :uploads do
         if capture("readlink -f #{current_path}").strip != release_path and test("[ -d #{current_remote_path} ]")
           debug "Cloning uploads directory from current release on #{server.user}@#{server.hostname}"
           
-          execute :cp, "-R", current_remote_path, remote_path
+          execute :cp, "-R", "--preserve=timestamps", current_remote_path, remote_path
         end
       end
       

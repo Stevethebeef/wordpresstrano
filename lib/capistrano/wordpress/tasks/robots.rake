@@ -2,12 +2,14 @@ namespace :robots do
   desc "Generate a robots.txt file"
   task :generate do
     on roles(:app) do |server|
-      info "Generating a robots.txt file on #{server.user}@#{server.hostname}"
+      file = "robots.txt"
       
-      remote_path = File.join(shared_path, "robots.txt")
+      info "Generating a #{file} file on #{server.user}@#{server.hostname}"
+      
+      remote_path = File.join(shared_path, file)
       
       if :production != fetch(:stage)
-        debug "Disallowing all user agents in robots.txt on #{server.user}@#{server.hostname}"
+        debug "Disallowing all user agents in #{file} on #{server.user}@#{server.hostname}"
         
         upload! StringIO.new("User-agent: *\nDisallow: /"), remote_path
       else
@@ -19,13 +21,15 @@ namespace :robots do
   desc "Set permissions on the robots.txt file"
   task :setperms do
     on roles(:app) do |server|
-      remote_path = File.join(shared_path, "robots.txt")
+      file = "robots.txt"
+      
+      remote_path = File.join(shared_path, file)
       
       unless test("[ -f #{remote_path} ]")
-        error "The robots.txt file does not exist on #{server.user}@#{server.hostname}"
+        error "A #{file} file does not exist on #{server.user}@#{server.hostname}"
       end
       
-      info "Setting permissions for robots.txt on #{server.user}@#{server.hostname}"
+      info "Setting permissions for #{file} on #{server.user}@#{server.hostname}"
       
       execute :chmod, 644, remote_path
     end

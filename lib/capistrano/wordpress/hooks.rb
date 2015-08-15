@@ -2,13 +2,13 @@
 before "deploy", "binaries:check"
 
 # Deploy resources before deploying
-#before "deploy", "deploy:resources"
+before "deploy", "deploy:resources"
 
 # Check directories before deploying resources
-#before "deploy:resources", "deploy:check:directories"
+before "deploy:resources", "deploy:check:directories"
 
 # Push the local database before finishing a deployment
-before "deploy:finishing", "db:push"
+#before "deploy:finishing", "db:push"
 
 # Remove the existing WordPress core before downloading a new one
 before "wp:core:download", "wp:core:remove"

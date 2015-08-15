@@ -1,4 +1,4 @@
-# Check for binaries before Deploy tasks
+# Check for binaries before deploying
 before "deploy:check", "binaries:check"
 
 # Check for binaries before WordPress tasks

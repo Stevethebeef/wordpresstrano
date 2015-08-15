@@ -22,11 +22,11 @@ before "config:generate", "deploy:check:directories"
 # Check directories before generating a robots.txt file
 before "robots:generate", "deploy:check:directories"
 
-# Download the WordPress core before symlinking the release
-before "deploy:symlink:release", "wp:core:download"
+# Download the WordPress core before calling updated on the release
+before "deploy:updated", "wp:core:download"
 
-# Push the local database before finishing a deployment
-#before "deploy:symlink:release", "db:push"
+# Push the local database before publishing the deployment
+#before "deploy:publishing", "db:push"
 
 # Link the new release into the website root
 #after "deploy:finished", "webroot:symlink"

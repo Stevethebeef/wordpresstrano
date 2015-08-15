@@ -48,10 +48,10 @@ after "deploy:updated", "uploads:push"
 #after "deploy:reverted", "db:rollback"
 
 # Link the new release into the website root
-#after "deploy:finished", "webroot:symlink"
+after "deploy:finished", "webroot:symlink"
 
 # Set permissions on the website root
-#after "deploy:finished", "webroot:setperms"
+after "deploy:finished", "webroot:setperms"
 
 # Set permissions on the wp-config.php file after generating
 after "config:generate", "config:setperms"

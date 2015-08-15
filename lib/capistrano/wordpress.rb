@@ -20,3 +20,7 @@ before "deploy", "deploy:resources"
 
 # Download the WordPress core to the new release
 after "deploy:symlink:release", "wp:core:download"
+
+# Link the new release into the Website Root and set permissions on it
+after "deploy:finished", "webroot:setperms"
+after "deploy:finished", "webroot:symlink"

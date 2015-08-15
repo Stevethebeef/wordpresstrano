@@ -25,6 +25,9 @@ before "robots:generate", "deploy:check:directories"
 # Download the WordPress core before calling updated on the release
 before "deploy:updated", "wp:core:download"
 
+# Check directories before pushing a htaccess file
+before "htaccess:push", "deploy:check:directories"
+
 # Push the local database before publishing the deployment
 #before "deploy:publishing", "db:push"
 

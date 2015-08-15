@@ -31,14 +31,17 @@ before "htaccess:push", "deploy:check:directories"
 # Check directories before pushing a uploads directory
 before "uploads:push", "deploy:check:directories"
 
-# Push the local .htaccess file before publishing the deployment
-before "deploy:publishing", "htaccess:push"
+# Push the local .htaccess file after the deployment
+after "deploy:updated", "htaccess:push"
 
-# Push the local uploads directory before publishing the deployment
-before "deploy:publishing", "uploads:push"
+# Push the local uploads directory after the deployment
+after "deploy:updated", "uploads:push"
 
-# Push the local database before publishing the deployment
-#before "deploy:publishing", "db:push"
+# Push the local database after the deployment
+#after "deploy:updated", "db:push"
+
+# Rollback the database after the deployment has reverted
+#after "deploy:reverted", "db:rollback"
 
 # Link the new release into the website root
 #after "deploy:finished", "webroot:symlink"

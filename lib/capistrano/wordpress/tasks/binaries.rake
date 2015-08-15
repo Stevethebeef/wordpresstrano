@@ -7,7 +7,7 @@ namespace :binaries do
       local: [:php, :rsync, :wp],
       remote: {
         :all => [:wp],
-        :app => [:rm, :rsync],
+        :app => [:readlink, :rm, :rsync],
         :db => [:du, :mysqlshow]
       }
     }

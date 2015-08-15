@@ -28,8 +28,14 @@ before "deploy:updated", "wp:core:download"
 # Check directories before pushing a htaccess file
 before "htaccess:push", "deploy:check:directories"
 
+# Check directories before pushing a uploads directory
+before "uploads:push", "deploy:check:directories"
+
 # Push the local .htaccess file before publishing the deployment
 before "deploy:publishing", "htaccess:push"
+
+# Push the local uploads directory before publishing the deployment
+before "deploy:publishing", "uploads:push"
 
 # Push the local database before publishing the deployment
 #before "deploy:publishing", "db:push"
@@ -48,3 +54,6 @@ after "robots:generate", "robots:setperms"
 
 # Set permissions on the .htaccess file after pushing
 after "htaccess:push", "htaccess:setperms"
+
+# Set permissions on the uploads directory after pushing
+after "uploads:push", "uploads:setperms"

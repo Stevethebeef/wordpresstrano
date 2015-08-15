@@ -11,6 +11,8 @@ namespace :wp do
         
         execute :mkdir, "-p", tmp_dir
         
+        invoke 'wp:core:remove'
+        
         within tmp_dir do
           execute :wp, "core", "download", (version ? "--version=#{version}" : "")
           

@@ -196,7 +196,9 @@ namespace :db do
   task :restore do
     backups_directory = File.join(fetch(:deploy_to), "backups", "database")
     
-    unless fetch(:database_backup_id, ENV["id"])
+    backup_id = fetch(:rollback_timestamp, ENV["id"])
+    
+    unless backup_id
       run_locally do
         info "No backup id provided to restore database backup"
       end
@@ -205,8 +207,6 @@ namespace :db do
     end
     
     on roles(:db) do |server|
-      backup_id = fetch(:database_backup_id, ENV["id"])
-      
       file = "#{backup_id}.sql"
     
       remote_path = File.join(backups_directory, file)
@@ -265,6 +265,30 @@ namespace :db do
         info "#{backup_time} - #{backup_size} (ID: #{backup_basename})"
       end
     end
+  end
+  
+  # Rollback the WordPress database
+  # This is only useful when called during a deploy:rollback task
+  task :rollback do
+    actual_current_path = nil
+    actual_release_path = nil
+    
+    on roles(:db) do |server|
+      next unless server.matches? roles(:db).first # Hack to make sure we run only once
+      
+      actual_current_path = capture("readlink -f #{current_path}").strip
+      actual_release_path = capture("readlink -f #{release_path}").strip
+    end
+    
+    if actual_current_path == actual_release_path
+      run_locally do
+        info "This task is only useful when called during a deploy:rollback task!"
+      end
+      
+      next
+    end
+    
+    invoke 'db:restore'
   end
   
   # Enable maintenance mode if WordPress is already installed (used by db:push)

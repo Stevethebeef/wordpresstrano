@@ -282,13 +282,49 @@ namespace :db do
     
     if actual_current_path == actual_release_path
       run_locally do
-        info "This task is only useful when called during a deploy:rollback task!"
+        error "This task is only useful when called during a deploy:rollback task!"
       end
       
       next
     end
     
+    invoke 'db:backup'
     invoke 'db:restore'
+    
+    set :rollback_from_timestamp, File.basename(actual_current_path)
+  end
+  
+  # Move the database backup from the release we rolled away from
+  # into the release's root before it's archived
+  task :cleanup_rollback_database do
+    rollback_from_timestamp = fetch(:rollback_from_timestamp)
+    
+    unless :rollback_from_timestamp
+      run_locally do
+        error "No timestamp set for the release we rolled away from"
+      end
+      
+      next
+    end
+    
+    file = "#{rollback_from_timestamp}.sql"
+    
+    backups_directory = File.join(fetch(:deploy_to), "backups", "database")
+    
+    source_path = File.join(backups_directory, file)
+    destination_path = File.join(releases_path, rollback_from_timestamp, file)
+    
+    on roles(:db) do |server|
+      unless test("[ -f #{source_path} ]")
+        error "The database backup file does not exist on #{server.user}@#{server.hostname}"
+        
+        next
+      end
+      
+      info "Moving database backup #{rollback_from_timestamp} into release on #{server.user}@#{server.hostname}"
+      
+      execute :mv, source_path, destination_path
+    end
   end
   
   # Enable maintenance mode if WordPress is already installed (used by db:push)

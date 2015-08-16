@@ -49,6 +49,10 @@ before "db:restore", "db:create"
 # Deploy shared configuration files before deploying
 before "deploy", "deploy:shared_configs"
 
+# Move the database backup from the release we rolled away from
+# into the release's root before it's archived
+before "deploy:cleanup_rollback", "db:cleanup_rollback_database"
+
 # Load the local WordPress version so that when downloading the
 # WordPress core on a remote server, the version matches the local installation.
 before "deploy:updated", "wp:core:load_local_version"

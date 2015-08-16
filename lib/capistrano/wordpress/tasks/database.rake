@@ -192,6 +192,39 @@ namespace :db do
     end
   end
   
+  desc "Restore a backup of the WordPress database"
+  task :restore do
+    backups_directory = File.join(fetch(:deploy_to), "backups", "database")
+    
+    unless fetch(:database_backup_id, ENV["id"])
+      run_locally do
+        info "No backup id provided to restore database backup"
+      end
+      
+      next
+    end
+    
+    on roles(:db) do |server|
+      backup_id = fetch(:database_backup_id, ENV["id"])
+      
+      file = "#{backup_id}.sql"
+    
+      remote_path = File.join(backups_directory, file)
+      
+      unless test("[ -f #{remote_path} ]")
+        info "Could not find database backup #{backup_id} on #{server.user}@#{server.hostname}"
+        
+        next
+      end
+      
+      info "Restoring WordPress database #{backup_id} on #{server.user}@#{server.hostname}"
+      
+      within release_path do
+        execute :wp, "db", "import", remote_path
+      end
+    end
+  end
+  
   desc "List all WordPress database backups"
   task :list_backups do
     on roles(:db) do |server|

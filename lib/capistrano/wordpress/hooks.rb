@@ -12,6 +12,9 @@ before "htaccess:push", "deploy:check:directories"
 before "robots:generate", "deploy:check:directories"
 before "uploads:push", "deploy:check:directories"
 
+# Create the MySQL database before pushing content to it
+before "db:push", "db:create"
+
 # Deploy shared configuration files before deploying
 before "deploy", "deploy:shared_configs"
 

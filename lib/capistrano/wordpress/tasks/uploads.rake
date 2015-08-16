@@ -1,5 +1,5 @@
 namespace :uploads do
-  desc "Push the uploads directory"
+  desc "Push up the uploads directory"
   task :push do
     directory = File.join("wp-content", "uploads")
     

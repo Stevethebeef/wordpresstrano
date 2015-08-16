@@ -28,10 +28,10 @@ namespace :uploads do
       
       execute :mkdir, "-p", remote_path
       
-      info "Pushing uploads directory to #{server.user}@#{server.hostname}"
+      info "Pushing #{directory} directory to #{server.user}@#{server.hostname}"
       
       # Fix for rsync
-      local_path = File.expand_path(local_path) + "/"
+      local_path += "/"
       
       run_locally do
         execute :rsync, "-lrtvzO", (server.port ? "-e 'ssh -p #{server.port}'" : nil), local_path, "#{server.user}@#{server.hostname}:#{remote_path}"

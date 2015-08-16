@@ -31,9 +31,6 @@ before "robots:generate", "deploy:check:directories"
 before "uploads:pull", "deploy:check:directories"
 before "uploads:push", "deploy:check:directories"
 
-# Backup the database before deleting
-before "db:drop", "db:backup"
-
 # Check if maintenance mode should be enabled before pushing the database
 before "db:push", "db:check_maintenance_enable"
 
@@ -42,9 +39,6 @@ before "db:push", "db:create"
 
 # Backup the database before pushing
 before "db:push", "db:backup"
-
-# Backup the database before a reset
-before "db:reset", "db:backup"
 
 # Check if maintenance mode should be enabled before restoring the database
 before "db:restore", "db:check_maintenance_enable"

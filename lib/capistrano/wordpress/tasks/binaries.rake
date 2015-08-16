@@ -4,10 +4,10 @@ namespace :binaries do
     next if true == fetch(:checked_binaries)
     
     required_binaries = {
-      local: [:php, :rsync, :wp],
+      local: [:php, :rm, :rsync, :wp],
       remote: {
-        :all => [:wp],
-        :app => [:ln, :readlink, :rm, :rsync],
+        :all => [:chmod, :find, :rm, :wp],
+        :app => [:ln, :readlink, :rsync],
         :db => [:du, :grep, :mysqlshow]
       }
     }

@@ -58,6 +58,34 @@ namespace :db do
     end
   end
   
+  desc "Drop the MySQL database"
+  task :drop do
+    database_config = fetch(:database_config)
+    
+    unless database_config.has_keys? :hostname, :username, :database, :password
+      abort "The #{fetch(:stage)} database configuration is invalid"
+    end
+    
+    database_name = database_config[:database]
+    database_hostname = database_config[:hostname]
+    database_username = database_config[:username]
+    database_password = database_config[:password]
+    
+    on roles(:db) do |server|
+      within release_path do
+        unless test("[ \"#{database_name}\" == $(mysqlshow --user=\"#{database_username}\" --password=\"#{database_password}\" #{database_name} | grep -v Wildcard | grep -o #{database_name}) ]")
+          info "The MySQL database does not exist on #{server.user}@#{server.hostname}"
+          
+          next
+        end
+        
+        info "Deleting MySQL database on #{server.user}@#{server.hostname}"
+        
+        execute :wp, "db", "drop", "--yes"
+      end
+    end
+  end
+  
   desc "Reset the MySQL database"
   task :reset do
     on roles(:db) do |server|

@@ -28,6 +28,9 @@ before "wp:core:download", "wp:core:remove"
 # Download the WordPress core files before finishing deploy:updated
 before "deploy:updated", "wp:core:download"
 
+# Link the release into the website root
+after "deploy:finished", "webroot:symlink"
+
 # Set permissions on the resources after deploying them
 after "config:generate", "config:setperms"
 after "htaccess:push", "htaccess:setperms"
@@ -40,6 +43,3 @@ after "deploy:finished", "webroot:setperms"
 after "deploy:updated", "db:push"
 after "deploy:updated", "htaccess:push"
 after "deploy:updated", "uploads:push"
-
-# Link the release into the website root
-after "deploy:finished", "webroot:symlink"

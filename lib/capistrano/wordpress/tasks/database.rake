@@ -23,7 +23,7 @@ namespace :db do
         execute :wp, "db", "import", remote_path
         execute :rm, "-f", remote_path
         
-        unless fetch(:local_site_url) and fetch(:site_url)
+        if fetch(:local_site_url) and fetch(:site_url)
           execute :wp, "search-replace", fetch(:local_site_url), fetch(:site_url)
         end
       end

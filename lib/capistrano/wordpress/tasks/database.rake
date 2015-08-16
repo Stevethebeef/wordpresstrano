@@ -58,6 +58,23 @@ namespace :db do
     end
   end
   
+  desc "Reset the MySQL database"
+  task :reset do
+    on roles(:db) do |server|
+      within release_path do
+        unless test :wp, "core", "is-installed"
+          info "The WordPress database does not appear to be installed on #{server.user}@#{server.hostname}"
+          
+          next
+        end
+        
+        info "Resetting the WordPress database on #{server.user}@#{server.hostname}"
+        
+        execute :wp, "db", "reset", "--yes"
+      end
+    end
+  end
+  
   # Enable maintenance mode if WordPress is already installed (used by db:push)
   task :check_maintenance_enable do
     on roles(:db) do

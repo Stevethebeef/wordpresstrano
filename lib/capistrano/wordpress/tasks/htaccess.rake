@@ -22,6 +22,13 @@ namespace :htaccess do
     end
     
     htaccess_pull_server = fetch(:htaccess_pull_server).to_i
+    
+    if 1 > htaccess_pull_server or roles(:app).count < htaccess_pull_server
+      error "Unable to locate a server with an id '#{htaccess_pull_server}'"
+      
+      next
+    end
+    
     htaccess_pull_server = roles(:app)[htaccess_pull_server - 1]
     
     on roles(:app) do |server|

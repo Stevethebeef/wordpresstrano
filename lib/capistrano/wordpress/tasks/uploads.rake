@@ -1,4 +1,56 @@
 namespace :uploads do
+  desc "Pull down the uploads directory"
+  task :pull do
+    directory = File.join("wp-content", "uploads")
+    
+    local_path = File.join(Dir.pwd, directory)
+    remote_path = File.join(release_path, directory)
+    
+    next if 0 == roles(:app).count
+    
+    if 1 < roles(:app).count
+      run_locally do
+        info "Found #{roles(:app).count} application servers"
+        
+        roles(:app).each_with_index do |server, index|
+          info "#{index + 1}) #{server.user}@#{server.hostname} (Port #{server.port or 22})"
+        end
+        
+        set :uploads_pull_server, ask("the number of the server to pull the #{directory} directory from", "1")
+      end
+    else
+      set :uploads_pull_server, "1"
+    end
+    
+    uploads_pull_server = fetch(:uploads_pull_server).to_i
+    uploads_pull_server = roles(:app)[uploads_pull_server - 1]
+    
+    on roles(:app) do |server|
+      next unless server.matches? uploads_pull_server
+      
+      unless test("[ -d #{remote_path} ]")
+        error "There isn't a #{directory} directory on #{server.user}@#{server.hostname}"
+        
+        next
+      end
+      
+      run_locally do
+        execute :mkdir, "-p", local_path
+      end
+      
+      info "Pulling #{directory} directory from #{server.user}@#{server.hostname}"
+      
+      # Fix for rsync
+      remote_path += "/"
+      
+      run_locally do
+        execute :rsync, "-lrtvzO", (server.port ? "-e 'ssh -p #{server.port}'" : nil), "#{server.user}@#{server.hostname}:#{remote_path}", local_path
+      end
+    end
+    
+    set :uploads_pull_server, nil
+  end
+  
   desc "Push up the uploads directory"
   task :push do
     directory = File.join("wp-content", "uploads")

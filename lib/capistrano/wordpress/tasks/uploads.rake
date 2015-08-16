@@ -25,7 +25,9 @@ namespace :uploads do
     uploads_pull_server = fetch(:uploads_pull_server).to_i
     
     if 1 > uploads_pull_server or roles(:app).count < uploads_pull_server
-      error "Unable to locate a server with an id '#{uploads_pull_server}'"
+      run_locally do
+        error "Unable to locate a server with an id '#{uploads_pull_server}'"
+      end
       
       next
     end

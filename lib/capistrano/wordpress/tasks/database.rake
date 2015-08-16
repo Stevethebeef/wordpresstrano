@@ -192,6 +192,48 @@ namespace :db do
     end
   end
   
+  desc "List all WordPress database backups"
+  task :list_backups do
+    on roles(:db) do |server|
+      next unless server.matches? roles(:db).first # Hack to make sure we run only once
+      
+      backups_directory = File.join(fetch(:deploy_to), "backups", "database")
+      
+      unless test("[ -d #{backups_directory} ]")
+        info "No database backups found"
+        
+        next
+      end
+      
+      backup_paths = capture("find #{backups_directory} -name '*.sql' -maxdepth 1")
+      
+      if backup_paths.nil? or backup_paths.empty?
+        info "No database backups found"
+        
+        next
+      end
+      
+      if 1 == backup_paths.lines.count
+        info "Found 1 database backup"
+      else
+        info "Found #{backup_paths.lines.count} database backups"
+      end
+      
+      backup_paths.each_line do |backup_path|
+        backup_path = backup_path.strip
+        
+        backup_basename = File.basename(backup_path).gsub(".sql", "").strip
+        
+        backup_time = Time.parse(backup_basename)
+        backup_time = backup_time.strftime("%A #{backup_time.day.ordinalize} %B %Y at %H:%M:%S")
+        
+        backup_size = capture("du -h #{backup_path} | awk '{ print \$1 }'")
+        
+        info "#{backup_time} - #{backup_size} (ID: #{backup_basename})"
+      end
+    end
+  end
+  
   # Enable maintenance mode if WordPress is already installed (used by db:push)
   task :check_maintenance_enable do
     on roles(:db) do

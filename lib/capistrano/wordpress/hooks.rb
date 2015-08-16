@@ -40,6 +40,6 @@ after "deploy:finished", "webroot:setperms"
 
 # Push the local resources after finishing deploy:updated
 #after "deploy:reverted", "db:rollback"
-after "deploy:updated", "db:push"
 after "deploy:updated", "htaccess:push"
 after "deploy:updated", "uploads:push"
+after "deploy:updated", "db:push" # We want this to happen last so leave it here :)

@@ -164,6 +164,34 @@ namespace :db do
     end
   end
   
+  desc "Create a backup of the WordPress database"
+  task :backup do
+    backups_directory = File.join(fetch(:deploy_to), "backups", "database")
+    
+    on roles(:db) do |server|
+      next unless test("[ -d #{current_path} ]")
+      
+      actual_current_path = capture("readlink -f #{current_path}").strip
+      
+      file = File.basename(actual_current_path)
+      file = "#{file}.sql"
+    
+      remote_path = File.join(backups_directory, file)
+      
+      info "Backing up WordPress database on #{server.user}@#{server.hostname}"
+      
+      execute :mkdir, "-p", backups_directory
+      
+      if test("[ -f #{remote_path} ]")
+        execute :rm, "-f", remote_path
+      end
+      
+      within release_path do
+        execute :wp, "db", "export", remote_path
+      end
+    end
+  end
+  
   # Enable maintenance mode if WordPress is already installed (used by db:push)
   task :check_maintenance_enable do
     on roles(:db) do

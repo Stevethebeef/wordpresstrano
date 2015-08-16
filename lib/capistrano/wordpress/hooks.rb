@@ -24,6 +24,9 @@ before "db:push", "db:check_maintenance_enable"
 # Create the MySQL database before pushing content to it
 before "db:push", "db:create"
 
+# Backup the database before pushing
+before "db:push", "db:backup"
+
 # Deploy shared configuration files before deploying
 before "deploy", "deploy:shared_configs"
 

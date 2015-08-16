@@ -4,7 +4,7 @@ namespace :maintenance do
     file = ".maintenance"
     
     template_path = File.join("config", "templates", "#{file}.erb")
-    remote_path = File.join(release_path, file)
+    remote_path = File.join(current_path, file)
     
     on roles(:app) do |server|
       if test("[ -f #{remote_path} ]")
@@ -49,7 +49,7 @@ namespace :maintenance do
   task :disable do
     file = ".maintenance"
     
-    remote_path = File.join(release_path, file)
+    remote_path = File.join(current_path, file)
     
     on roles(:app) do |server|
       unless test("[ -f #{remote_path} ]")

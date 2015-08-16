@@ -53,7 +53,7 @@ namespace :uploads do
       remote_path += "/"
       
       run_locally do
-        execute :rsync, "-lrtvzO", (server.port ? "-e 'ssh -p #{server.port}'" : nil), "#{server.user}@#{server.hostname}:#{remote_path}", local_path
+        execute :rsync, "-lrtvzO", "--delete-before", (server.port ? "-e 'ssh -p #{server.port}'" : nil), "#{server.user}@#{server.hostname}:#{remote_path}", local_path
       end
     end
     
@@ -95,7 +95,7 @@ namespace :uploads do
       local_path += "/"
       
       run_locally do
-        execute :rsync, "-lrtvzO", (server.port ? "-e 'ssh -p #{server.port}'" : nil), local_path, "#{server.user}@#{server.hostname}:#{remote_path}"
+        execute :rsync, "-lrtvzO", "--delete-before", (server.port ? "-e 'ssh -p #{server.port}'" : nil), local_path, "#{server.user}@#{server.hostname}:#{remote_path}"
       end
     end
   end

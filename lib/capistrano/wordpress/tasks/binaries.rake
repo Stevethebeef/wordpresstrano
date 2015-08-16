@@ -8,7 +8,7 @@ namespace :binaries do
       remote: {
         :all => [:wp],
         :app => [:ln, :readlink, :rm, :rsync],
-        :db => [:du, :mysqlshow]
+        :db => [:du, :grep, :mysqlshow]
       }
     }
   

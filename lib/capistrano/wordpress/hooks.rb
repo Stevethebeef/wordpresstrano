@@ -62,6 +62,15 @@ before "deploy:updated", "wp:core:download"
 # Link the release into the website root
 after "deploy:finished", "webroot:symlink"
 
+# Touch the release directory after deploying
+# This is required as after the first deployment, we enable
+# maintenance mode for every subsequent deployment. This causes
+# the previous release directory to have a newer timestamp than
+# the new release directory which leads to issues with the rollback
+# feature as the releases directory is sorted by modification time
+# when capistrano looks for the release to rollback to.
+after "deploy:finishing", "deploy:touch_release"
+
 # Set permissions on the resources after deploying them
 after "config:generate", "config:setperms"
 after "htaccess:push", "htaccess:setperms"

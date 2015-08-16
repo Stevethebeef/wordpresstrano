@@ -13,4 +13,12 @@ namespace :deploy do
       end
     end
   end
+  
+  task :touch_release do
+    on roles(:app) do |server|
+      info "Touching release directory on #{server.user}@#{server.hostname}"
+      
+      execute :touch, release_path
+    end
+  end
 end

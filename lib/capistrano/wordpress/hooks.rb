@@ -1,4 +1,8 @@
 # Check binaries before performing tasks
+before "db:create", "binaries:check"
+before "db:pull", "binaries:check"
+before "db:push", "binaries:check"
+before "db:reset", "binaries:check"
 before "deploy", "binaries:check"
 before "wp:core:download", "binaries:check"
 before "wp:core:remove", "binaries:check"
@@ -6,7 +10,9 @@ before "wp:core:remove", "binaries:check"
 # Check directories before performing tasks
 before "config:generate", "deploy:check:directories"
 before "db:create", "deploy:check:directories"
+before "db:pull", "deploy:check:directories"
 before "db:push", "deploy:check:directories"
+before "db:reset", "deploy:check:directories"
 before "deploy:shared_configs", "deploy:check:directories"
 before "htaccess:push", "deploy:check:directories"
 before "robots:generate", "deploy:check:directories"

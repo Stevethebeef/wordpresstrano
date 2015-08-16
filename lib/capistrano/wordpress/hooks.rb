@@ -46,6 +46,9 @@ before "db:push", "db:backup"
 # Backup the database before a reset
 before "db:reset", "db:backup"
 
+# Create the database before restoring
+before "db:restore", "db:create"
+
 # Deploy shared configuration files before deploying
 before "deploy", "deploy:shared_configs"
 

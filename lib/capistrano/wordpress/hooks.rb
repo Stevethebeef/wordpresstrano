@@ -12,6 +12,9 @@ before "htaccess:push", "deploy:check:directories"
 before "robots:generate", "deploy:check:directories"
 before "uploads:push", "deploy:check:directories"
 
+# Check if maintenance mode should be enabled before pushing the database
+before "db:push", "db:check_maintenance_enable"
+
 # Create the MySQL database before pushing content to it
 before "db:push", "db:create"
 
@@ -37,6 +40,9 @@ after "htaccess:push", "htaccess:setperms"
 after "robots:generate", "robots:setperms"
 after "uploads:push", "uploads:setperms"
 after "deploy:finished", "webroot:setperms"
+
+# Check if maintenance mode should be disabled after pushing the database
+after "db:push", "db:check_maintenance_disable"
 
 # Push the local resources after finishing deploy:updated
 #after "deploy:reverted", "db:rollback"

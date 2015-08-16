@@ -56,6 +56,8 @@ namespace :db do
         end
       end
     end
+    
+    set :database_pull_server, nil
   end
   
   desc "Push up the WordPress database"

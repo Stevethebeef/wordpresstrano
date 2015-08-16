@@ -46,6 +46,9 @@ before "db:push", "db:backup"
 # Backup the database before a reset
 before "db:reset", "db:backup"
 
+# Check if maintenance mode should be enabled before restoring the database
+before "db:restore", "db:check_maintenance_enable"
+
 # Create the database before restoring
 before "db:restore", "db:create"
 
@@ -74,6 +77,9 @@ after "deploy:finished", "webroot:setperms"
 
 # Check if maintenance mode should be disabled after pushing the database
 after "db:push", "db:check_maintenance_disable"
+
+# Check if maintenance mode should be disabled after restoring the database
+after "db:restore", "db:check_maintenance_disable"
 
 # Push the local resources after finishing deploy:updated
 #after "deploy:reverted", "db:rollback"

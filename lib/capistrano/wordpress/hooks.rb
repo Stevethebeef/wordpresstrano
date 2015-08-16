@@ -43,7 +43,7 @@ before "db:push", "db:create"
 # Backup the database before pushing
 before "db:push", "db:backup"
 
-# Backup the database before resetting
+# Backup the database before a reset
 before "db:reset", "db:backup"
 
 # Deploy shared configuration files before deploying

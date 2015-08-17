@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'wordpresstrano'
-  s.version = '0.2.0'
+  s.version = '0.2.1'
   s.date = '2015-08-09'
   s.authors = ['Nialto Services']
   s.email = 'support@nialtoservices.co.uk'

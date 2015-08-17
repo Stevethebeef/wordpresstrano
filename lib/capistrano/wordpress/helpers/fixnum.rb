@@ -1,5 +1,10 @@
+# Extensions for the Fixnum class
 class Fixnum
-  # Get the ordinal string of the integer value
+  # Get the ordinal string of this number
+  #
+  # Example:
+  #   >> 1.ordinal
+  #   => "st"
   def ordinal
     abs_number = self.to_i.abs
     
@@ -15,7 +20,12 @@ class Fixnum
     end
   end
   
-  # Get the ordinal string prefixed with the integer value
+  # Get the ordinal string of this number and
+  # prefix it with this number
+  #
+  # Example:
+  #   >> 1.ordinalize
+  #   => "1st"
   def ordinalize
     "#{self}#{self.ordinal}"
   end

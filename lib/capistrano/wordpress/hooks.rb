@@ -91,11 +91,8 @@ after "db:push", "db:check_maintenance_disable"
 # Check if maintenance mode should be disabled after restoring the database
 after "db:restore", "db:check_maintenance_disable"
 
-# Push the local resources after finishing deploy:updated
+# Rollback the database after rolling back the files
 after "deploy:reverted", "db:rollback"
-after "deploy:updated", "htaccess:push"
-after "deploy:updated", "uploads:push"
-after "deploy:updated", "db:push" # We want this to happen last so leave it here :)
 
 # Clone resources from the previous release (if they exist)
 after "deploy:updated", "htaccess:clone_from_previous_release"

@@ -129,4 +129,25 @@ namespace :htaccess do
       execute :chmod, 644, remote_path
     end
   end
+  
+  task :clone_from_previous_release do
+    file = ".htaccess"
+    
+    remote_path = File.join(release_path, file)
+    
+    on roles(:app) do |server|
+      if test("[ -d #{current_path} ]")
+        actual_current_path = capture("readlink -f #{current_path}").strip
+        actual_release_path = capture("readlink -f #{release_path}").strip
+        
+        previous_remote_path = File.join(actual_current_path, file)
+        
+        if actual_current_path != actual_release_path and test("[ -d #{previous_remote_path} ]")
+          debug "Cloning #{file} file from current release on #{server.user}@#{server.hostname}"
+          
+          execute :cp, "--preserve=timestamps", previous_remote_path, remote_path
+        end
+      end
+    end
+  end
 end

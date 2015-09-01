@@ -93,3 +93,7 @@ after "deploy:reverted", "db:rollback"
 after "deploy:updated", "htaccess:push"
 after "deploy:updated", "uploads:push"
 after "deploy:updated", "db:push" # We want this to happen last so leave it here :)
+
+# Clone resources from the previous release (if they exist)
+after "deploy:updated", "htaccess:clone_from_previous_release"
+after "deploy:updated", "uploads:clone_from_previous_release"

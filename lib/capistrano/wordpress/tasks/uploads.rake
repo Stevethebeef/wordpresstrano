@@ -74,19 +74,6 @@ namespace :uploads do
     end
     
     on roles(:app) do |server|
-      if test("[ -d #{current_path} ]") and (ENV["clone_uploads"].nil? or ENV["clone_uploads"].empty? or [true, "true", "yes", "y"].include? ENV["clone_uploads"].downcase)
-        actual_current_path = capture("readlink -f #{current_path}").strip
-        actual_release_path = capture("readlink -f #{release_path}").strip
-        
-        previous_remote_path = File.join(actual_current_path, directory)
-        
-        if actual_current_path != actual_release_path and test("[ -d #{previous_remote_path} ]")
-          debug "Cloning uploads directory from current release on #{server.user}@#{server.hostname}"
-          
-          execute :cp, "-R", "--preserve=timestamps", previous_remote_path, remote_path
-        end
-      end
-      
       execute :mkdir, "-p", remote_path
       
       info "Pushing #{directory} directory to #{server.user}@#{server.hostname}"
@@ -117,6 +104,25 @@ namespace :uploads do
       
       execute :find, remote_path, "-type d", "-exec", :chmod, 755, "{}", "\\;"
       execute :find, remote_path, "-type f", "-exec", :chmod, 644, "{}", "\\;"
+    end
+  end
+  
+  task :clone_from_previous_release do
+    directory = File.join("wp-content", "uploads")
+    
+    remote_path = File.join(release_path, directory)
+    
+    if test("[ -d #{current_path} ]")
+      actual_current_path = capture("readlink -f #{current_path}").strip
+      actual_release_path = capture("readlink -f #{release_path}").strip
+      
+      previous_remote_path = File.join(actual_current_path, directory)
+      
+      if actual_current_path != actual_release_path and test("[ -d #{previous_remote_path} ]")
+        debug "Cloning uploads directory from current release on #{server.user}@#{server.hostname}"
+        
+        execute :cp, "-R", "--preserve=timestamps", previous_remote_path, remote_path
+      end
     end
   end
 end

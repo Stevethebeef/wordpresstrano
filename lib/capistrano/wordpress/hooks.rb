@@ -63,6 +63,9 @@ before "wp:core:download", "wp:core:remove"
 # Download the WordPress core files before finishing deploy:updated
 before "deploy:updated", "wp:core:download"
 
+# Check if we can deploy without pushing htaccess/uploads/database
+before "deploy", "deploy:check_for_previous_deployment"
+
 # Link the release into the website root
 after "deploy:finished", "webroot:symlink"
 

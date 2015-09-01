@@ -68,7 +68,9 @@ namespace :uploads do
     remote_path = File.join(release_path, directory)
     
     unless File.directory? local_path
-      error "No local uploads directory exists"
+      run_locally do
+        error "No local uploads directory exists"
+      end
       
       next
     end

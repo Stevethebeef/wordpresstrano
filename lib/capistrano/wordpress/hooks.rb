@@ -35,6 +35,10 @@ before "db:restore", "db:create"
 # a partial deployment.
 before "deploy", "deploy:check_for_previous_deployment"
 
+# Set the timestamp to be used by the db:backup task
+before "deploy:all", "db:match_backup_timestamp_with_release"
+before "deploy:rollback", "db:match_backup_timestamp_with_release"
+
 # Move the database backup from the release we rolled away from
 # into the release's root before it's archived
 before "deploy:cleanup_rollback", "db:cleanup_rollback_database"

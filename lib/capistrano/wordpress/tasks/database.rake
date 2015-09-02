@@ -6,7 +6,7 @@ namespace :db do
     local_path = File.join(Dir.pwd, file)
     remote_path = File.join(fetch(:tmp_dir), file)
     
-    on roles(:db) do |server|
+    on roles(:app) do |server|
       info "Pushing WordPress database to #{server.user}@#{server.hostname}"
       
       run_locally do
@@ -43,10 +43,10 @@ namespace :db do
     database_username = database_config[:username]
     database_password = database_config[:password]
     
-    on roles(:db) do |server|
+    on roles(:app) do |server|
       within release_path do
         if test("[ \"#{database_name}\" == $(mysqlshow --user=\"#{database_username}\" --password=\"#{database_password}\" #{database_name} | grep -v Wildcard | grep -o #{database_name}) ]")
-          info "The MySQL database already exists on #{server.user}@#{server.hostname}"
+          error "The MySQL database already exists on #{server.user}@#{server.hostname}"
           
           next
         end
@@ -71,10 +71,10 @@ namespace :db do
     database_username = database_config[:username]
     database_password = database_config[:password]
     
-    on roles(:db) do |server|
+    on roles(:app) do |server|
       within release_path do
         unless test("[ \"#{database_name}\" == $(mysqlshow --user=\"#{database_username}\" --password=\"#{database_password}\" #{database_name} | grep -v Wildcard | grep -o #{database_name}) ]")
-          info "The MySQL database does not exist on #{server.user}@#{server.hostname}"
+          error "The MySQL database does not exist on #{server.user}@#{server.hostname}"
           
           next
         end
@@ -88,10 +88,10 @@ namespace :db do
   
   desc "Reset the MySQL database"
   task :reset do
-    on roles(:db) do |server|
+    on roles(:app) do |server|
       within release_path do
         unless test :wp, :core, "is-installed"
-          info "The WordPress database does not appear to be installed on #{server.user}@#{server.hostname}"
+          error "The WordPress database does not appear to be installed on #{server.user}@#{server.hostname}"
           
           next
         end
@@ -107,14 +107,13 @@ namespace :db do
   task :backup do
     backups_directory = File.join(fetch(:deploy_to), "backups", "database")
     
-    on roles(:db) do |server|
+    on roles(:app) do |server|
       next unless test("[ -d #{current_path} ]")
       
-      actual_current_path = capture("readlink -f #{current_path}").strip
+      timestamp = fetch(:db_backup_timestamp, Time.now.strftime("%Y%m%d%H%M%S"))
       
-      file = File.basename(actual_current_path)
-      file = "#{file}.sql"
-    
+      file = "#{timestamp}.sql"
+      
       remote_path = File.join(backups_directory, file)
       
       info "Backing up WordPress database on #{server.user}@#{server.hostname}"
@@ -135,28 +134,28 @@ namespace :db do
   task :restore do
     backups_directory = File.join(fetch(:deploy_to), "backups", "database")
     
-    backup_id = fetch(:rollback_timestamp, ENV["id"])
+    backup_id = fetch(:db_restore_timestamp, ENV['id'])
     
     unless backup_id
       run_locally do
-        info "No backup id provided to restore database backup"
+        error "You must provide the ID of the backup to restore!"
       end
       
       next
     end
     
-    on roles(:db) do |server|
+    on roles(:app) do |server|
       file = "#{backup_id}.sql"
     
       remote_path = File.join(backups_directory, file)
       
       unless test("[ -f #{remote_path} ]")
-        info "Could not find database backup #{backup_id} on #{server.user}@#{server.hostname}"
+        info "No database backup found for the id '#{backup_id}' on #{server.user}@#{server.hostname}"
         
         next
       end
       
-      info "Restoring WordPress database #{backup_id} on #{server.user}@#{server.hostname}"
+      info "Rolling back the database to '#{backup_id}' on #{server.user}@#{server.hostname}"
       
       within release_path do
         execute :wp, :db, :import, remote_path
@@ -166,13 +165,11 @@ namespace :db do
   
   desc "List all WordPress database backups"
   task :list_backups do
-    on roles(:db) do |server|
-      next unless server.matches? roles(:db).first # Hack to make sure we run only once
-      
+    on roles(:app) do |server|
       backups_directory = File.join(fetch(:deploy_to), "backups", "database")
       
       unless test("[ -d #{backups_directory} ]")
-        info "No database backups found"
+        error "No database backups found on #{server.user}@#{server.hostname}"
         
         next
       end
@@ -180,16 +177,12 @@ namespace :db do
       backup_paths = capture("find #{backups_directory} -name '*.sql' -maxdepth 1")
       
       if backup_paths.nil? or backup_paths.empty?
-        info "No database backups found"
+        error "No database backups found on #{server.user}@#{server.hostname}"
         
         next
       end
       
-      if 1 == backup_paths.lines.count
-        info "Found 1 database backup"
-      else
-        info "Found #{backup_paths.lines.count} database backups"
-      end
+      info "Found #{backup_paths.lines.count} database backup(s) on #{server.user}@#{server.hostname}"
       
       backup_paths.each_line do |backup_path|
         backup_path = backup_path.strip
@@ -212,9 +205,7 @@ namespace :db do
     actual_current_path = nil
     actual_release_path = nil
     
-    on roles(:db) do |server|
-      next unless server.matches? roles(:db).first # Hack to make sure we run only once
-      
+    on roles(:app) do |server|
       actual_current_path = capture("readlink -f #{current_path}").strip
       actual_release_path = capture("readlink -f #{release_path}").strip
     end
@@ -227,42 +218,46 @@ namespace :db do
       next
     end
     
+    set :db_restore_timestamp, File.basename(actual_release_path)
+    
     invoke 'db:backup'
     invoke 'db:restore'
-    
-    set :rollback_from_timestamp, File.basename(actual_current_path)
   end
   
   # Move the database backup from the release we rolled away from
   # into the release's root before it's archived
   task :cleanup_rollback_database do
-    rollback_from_timestamp = fetch(:rollback_from_timestamp)
+    db_backup_timestamp = fetch(:db_backup_timestamp)
     
-    unless :rollback_from_timestamp
-      run_locally do
-        error "No timestamp set for the release we rolled away from"
-      end
-      
-      next
-    end
+    next unless db_backup_timestamp
     
-    file = "#{rollback_from_timestamp}.sql"
+    file = "database.sql"
     
     backups_directory = File.join(fetch(:deploy_to), "backups", "database")
     
     source_path = File.join(backups_directory, file)
-    destination_path = File.join(releases_path, rollback_from_timestamp, file)
+    destination_path = File.join(releases_path, db_backup_timestamp, file)
     
-    on roles(:db) do |server|
+    on roles(:app) do |server|
       unless test("[ -f #{source_path} ]")
-        error "The database backup file does not exist on #{server.user}@#{server.hostname}"
+        error "The database backup (#{db_backup_timestamp}) does not exist on #{server.user}@#{server.hostname}"
         
         next
       end
       
-      info "Moving database backup #{rollback_from_timestamp} into release on #{server.user}@#{server.hostname}"
+      info "Moving database backup #{db_backup_timestamp} into release on #{server.user}@#{server.hostname}"
       
       execute :mv, source_path, destination_path
+    end
+  end
+  
+  # Set the timestamp for the backup task to match
+  # the timestamp of the current release.
+  task :match_backup_timestamp_with_release do
+    on roles(:app) do
+      if test("[ -d #{current_path} ]")
+        set :db_backup_timestamp, File.basename(capture("readlink -f #{current_path}").strip)
+      end
     end
   end
 end

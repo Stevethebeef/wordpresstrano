@@ -11,17 +11,15 @@ namespace :deploy do
   end
   
   task :check_for_previous_deployment do
-    previous_deployment = true
-    
     on roles(:all) do |server|
       unless test("[ -d #{current_path} ]")
         error "Unable to locate a current release on #{server.user}@#{server.hostname}"
         
-        previous_deployment = false
+        set :all_servers_have_deployments, false
       end
     end
     
-    unless previous_deployment
+    unless fetch(:all_servers_have_deployments, true)
       raise "One or more servers don't have a current release on them. You should run 'deploy:all' first."
     end
   end

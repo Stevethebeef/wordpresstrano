@@ -32,7 +32,7 @@ before "uploads:pull", "deploy:check:directories"
 before "uploads:push", "deploy:check:directories"
 
 # Check if maintenance mode should be enabled before pushing the database
-before "db:push", "db:check_maintenance_enable"
+before "db:push", "maintenance:enable_if_previous_deployment"
 
 # Create the MySQL database before pushing content to it
 before "db:push", "db:create"
@@ -41,11 +41,14 @@ before "db:push", "db:create"
 before "db:push", "db:backup"
 
 # Check if maintenance mode should be enabled before restoring the database
-before "db:restore", "db:check_maintenance_enable"
+before "db:restore", "maintenance:enable_if_previous_deployment"
 
 # Create the database before restoring
 before "db:restore", "db:create"
 
+# Check if there is a previous deployment before performing
+# a partial deployment.
+before "deploy", "deploy:check_for_previous_deployment"
 
 # Move the database backup from the release we rolled away from
 # into the release's root before it's archived
@@ -60,9 +63,6 @@ before "wp:core:download", "wp:core:remove"
 
 # Download the WordPress core files before finishing deploy:updated
 before "deploy:updated", "wp:core:download"
-
-# Check if we can deploy without pushing htaccess/uploads/database
-before "deploy", "deploy:check_for_previous_deployment"
 
 # Link the release into the website root
 after "deploy:finished", "webroot:symlink"
@@ -84,10 +84,10 @@ after "uploads:push", "uploads:setperms"
 after "deploy:finished", "webroot:setperms"
 
 # Check if maintenance mode should be disabled after pushing the database
-after "db:push", "db:check_maintenance_disable"
+after "db:push", "maintenance:disable_if_previous_deployment"
 
 # Check if maintenance mode should be disabled after restoring the database
-after "db:restore", "db:check_maintenance_disable"
+after "db:restore", "maintenance:disable_if_previous_deployment"
 
 # Rollback the database after rolling back the files
 after "deploy:reverted", "db:rollback"

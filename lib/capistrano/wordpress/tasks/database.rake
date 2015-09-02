@@ -326,30 +326,4 @@ namespace :db do
       execute :mv, source_path, destination_path
     end
   end
-  
-  # Enable maintenance mode if WordPress is already installed (used by db:push)
-  task :check_maintenance_enable do
-    maintenance_path = File.join(current_path, ".maintenance")
-    
-    on roles(:db) do
-      next unless test("[ -d #{current_path} ]")
-      next if test("[ -f #{maintenance_path} ]")
-      next if true == fetch(:db_enabled_maintenance_mode)
-      
-      within current_path do
-        if test :wp, "core", "is-installed"
-          set :db_enabled_maintenance_mode, true
-          
-          invoke 'maintenance:enable'
-        end
-      end
-    end
-  end
-  
-  # Disable maintenance mode if it was enabled by check_maintenance_enable
-  task :check_maintenance_disable do
-    next unless true == fetch(:db_enabled_maintenance_mode)
-    
-    invoke 'maintenance:disable'
-  end
 end

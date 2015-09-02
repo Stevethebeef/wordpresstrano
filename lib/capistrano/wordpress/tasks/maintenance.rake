@@ -65,4 +65,29 @@ namespace :maintenance do
       execute :rm, "-f", remote_path
     end
   end
+  
+  # Enable maintenance mode if there is already a WordPress deployment.
+  task :enable_if_previous_deployment do
+    maintenance_path = File.join(current_path, ".maintenance")
+    
+    on roles(:app) do
+      next unless test("[ -d #{current_path} ]")
+      next if test("[ -f #{maintenance_path} ]")
+      
+      within current_path do
+        if test :wp, :core, "is-installed"
+          set :previous_deployment_maintenance_enabled, true
+          
+          invoke 'maintenance:enable'
+        end
+      end
+    end
+  end
+  
+  # Disable maintenance mode if it was enabled by the :enable_if_previous_deployment task.
+  task :disable_if_previous_deployment do
+    next unless true == fetch(:previous_deployment_maintenance_enabled)
+    
+    invoke 'maintenance:disable'
+  end
 end

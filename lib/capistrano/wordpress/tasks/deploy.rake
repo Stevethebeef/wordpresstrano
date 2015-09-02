@@ -41,6 +41,21 @@ namespace :deploy do
     end
   end
   
+  desc "Perform a safety check"
+  task :safety_check do
+    unless fetch(:website_root)
+      raise "You must set the :website_root variable in your deployment configuration!"
+    end
+    
+    if 1 < roles(:app).count
+      raise "You can't deploy to more than one server!"
+    end
+    
+    invoke "binaries:check"
+    invoke "deploy:check:directories"
+  end
+  
+  desc "Touch the most recent release directory on the remote servers"
   task :touch_release do
     on roles(:app) do |server|
       info "Touching release directory on #{server.user}@#{server.hostname}"

@@ -54,12 +54,12 @@ before "deploy", "deploy:check_for_previous_deployment"
 # into the release's root before it's archived
 before "deploy:cleanup_rollback", "db:cleanup_rollback_database"
 
+# Remove the existing WordPress core before downloading a new one
+before "wp:core:download", "wp:core:remove"
+
 # Load the local WordPress version so that when downloading the
 # WordPress core on a remote server, the version matches the local installation.
 before "deploy:updated", "wp:core:load_local_version"
-
-# Remove the existing WordPress core before downloading a new one
-before "wp:core:download", "wp:core:remove"
 
 # Download the WordPress core files before finishing deploy:updated
 before "deploy:updated", "wp:core:download"

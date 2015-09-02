@@ -13,21 +13,6 @@ namespace :deploy do
     invoke "deploy"
   end
   
-  task :check_for_previous_deployment do
-    on roles(:all) do |server|
-      unless test("[ -d #{current_path} ]")
-        error "Unable to locate a current release on #{server.user}@#{server.hostname}"
-        
-        set :all_servers_have_deployments, false
-      end
-    end
-    
-    unless fetch(:all_servers_have_deployments, true)
-      raise "One or more servers don't have a current release on them. You should run 'deploy:all' first."
-    end
-  end
-  
-  task :shared_configs do
   desc "Deploy the wp-config.php and robots.txt configuration files"
   task :configs do
     config_path = File.join(shared_path, "wp-config.php")
@@ -64,6 +49,23 @@ namespace :deploy do
       info "Touching release directory on #{server.user}@#{server.hostname}"
       
       execute :touch, release_path
+    end
+  end
+  
+  # Check if a previous deployment exists on the remote servers.
+  # If one or more servers don't have a release on them, we should
+  # raise an error.
+  task :check_for_previous_deployment do
+    on roles(:app) do |server|
+      unless test("[ -d #{current_path} ]")
+        error "No releases found on #{server.user}@#{server.hostname}"
+        
+        set :all_servers_have_deployments, false
+      end
+    end
+    
+    unless fetch(:all_servers_have_deployments, true)
+      raise "You need to run the 'deploy:all' task first!"
     end
   end
 end

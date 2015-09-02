@@ -46,8 +46,6 @@ before "db:restore", "db:check_maintenance_enable"
 # Create the database before restoring
 before "db:restore", "db:create"
 
-# Deploy shared configuration files before deploying
-before "deploy", "deploy:shared_configs"
 
 # Move the database backup from the release we rolled away from
 # into the release's root before it's archived

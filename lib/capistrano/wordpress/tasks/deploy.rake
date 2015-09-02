@@ -3,6 +3,8 @@ namespace :deploy do
     Rake::Task["deploy"].prerequisites.delete("deploy:check_for_previous_deployment")
     Rake::Task["deploy:updated"].prerequisites.delete("htaccess:clone_from_previous_release")
     
+    before "deploy", "deploy:shared_configs"
+    
     after "deploy:updated", "htaccess:push"
     after "deploy:updated", "uploads:push"
     after "deploy:updated", "db:push"

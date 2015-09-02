@@ -46,9 +46,13 @@ namespace :deploy do
   desc "Touch the most recent release directory on the remote servers"
   task :touch_release do
     on roles(:app) do |server|
-      info "Touching release directory on #{server.user}@#{server.hostname}"
-      
-      execute :touch, release_path
+      if test("[ -d #{release_path} ]")
+        info "Touching release directory on #{server.user}@#{server.hostname}"
+        
+        execute :touch, release_path
+      else
+        error "No release directory found on #{server.user}@#{server.hostname}"
+      end
     end
   end
   

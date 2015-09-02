@@ -1,9 +1,10 @@
 namespace :deploy do
+  desc "Deploy all resources to the remote servers"
   task :all do
     Rake::Task["deploy"].prerequisites.delete("deploy:check_for_previous_deployment")
     Rake::Task["deploy:updated"].prerequisites.delete("htaccess:clone_from_previous_release")
     
-    before "deploy", "deploy:shared_configs"
+    before "deploy", "deploy:configs"
     
     after "deploy:updated", "htaccess:push"
     after "deploy:updated", "uploads:push"
@@ -27,6 +28,8 @@ namespace :deploy do
   end
   
   task :shared_configs do
+  desc "Deploy the wp-config.php and robots.txt configuration files"
+  task :configs do
     config_path = File.join(shared_path, "wp-config.php")
     robots_path = File.join(shared_path, "robots.txt")
     

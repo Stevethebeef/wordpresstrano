@@ -1,31 +1,25 @@
 namespace :binaries do
   desc "Check that all required binaries are installed"
   task :check do
-    next if true == fetch(:checked_binaries)
+    next if fetch(:checked_binaries, false)
     
     required_binaries = {
       local: [:mysql, :mysqldump, :mysqlshow, :php, :rm, :rsync, :wp],
-      remote: {
-        :all => [:chmod, :find, :mysql, :mysqldump, :mysqlshow, :rm, :wp],
-        :app => [:ln, :readlink, :rsync],
-        :db => [:du, :grep]
-      }
+      remote: [:chmod, :du, :find, :grep, :ln, :mysql, :mysqldump, :mysqlshow, :readlink, :rm, :rsync, :wp]
     }
-  
-    run_locally do
-      required_binaries[:local].each do |binary|
+    
+    required_binaries[:local].each do |binary|
+      run_locally do
         unless test :which, binary
           abort "The binary '#{binary}' is missing from the local system"
         end
       end
     end
   
-    required_binaries[:remote].each do |role, binaries|
-      on roles(role) do |server|
-        binaries.each do |binary|
-          unless test :which, binary
-            abort "The binary '#{binary}' is missing from #{server.user}@#{server.hostname}"
-          end
+    required_binaries[:remote].each do |binary|
+      on roles(:app) do |server|
+        unless test :which, binary
+          abort "The binary '#{binary}' is missing from #{server.user}@#{server.hostname}"
         end
       end
     end

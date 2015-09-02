@@ -40,7 +40,7 @@ namespace :db do
       info "Pulling WordPress database from #{server.user}@#{server.hostname}"
       
       within release_path do
-        execute :wp, "db", "export", remote_path
+        execute :wp, :db, :export, remote_path
       end
       
       download! remote_path, local_path
@@ -48,7 +48,7 @@ namespace :db do
       execute :rm, "-f", remote_path
       
       run_locally do
-        execute :wp, "db", "import", local_path
+        execute :wp, :db, :import, local_path
         execute :rm, "-f", local_path
         
         if fetch(:local_site_url) and fetch(:site_url)
@@ -71,7 +71,7 @@ namespace :db do
       info "Pushing WordPress database to #{server.user}@#{server.hostname}"
       
       run_locally do
-        execute :wp, "db", "export", local_path
+        execute :wp, :db, :export, local_path
       end
       
       upload! local_path, remote_path
@@ -81,7 +81,7 @@ namespace :db do
       end
       
       within release_path do
-        execute :wp, "db", "import", remote_path
+        execute :wp, :db, :import, remote_path
         execute :rm, "-f", remote_path
         
         if fetch(:local_site_url) and fetch(:site_url)
@@ -114,7 +114,7 @@ namespace :db do
         
         info "Creating MySQL database on #{server.user}@#{server.hostname}"
         
-        execute :wp, "db", "create"
+        execute :wp, :db, :create
       end
     end
   end
@@ -142,7 +142,7 @@ namespace :db do
         
         info "Deleting MySQL database on #{server.user}@#{server.hostname}"
         
-        execute :wp, "db", "drop", "--yes"
+        execute :wp, :db, :drop, "--yes"
       end
     end
   end
@@ -151,7 +151,7 @@ namespace :db do
   task :reset do
     on roles(:db) do |server|
       within release_path do
-        unless test :wp, "core", "is-installed"
+        unless test :wp, :core, "is-installed"
           info "The WordPress database does not appear to be installed on #{server.user}@#{server.hostname}"
           
           next
@@ -159,7 +159,7 @@ namespace :db do
         
         info "Resetting the WordPress database on #{server.user}@#{server.hostname}"
         
-        execute :wp, "db", "reset", "--yes"
+        execute :wp, :db, :reset, "--yes"
       end
     end
   end
@@ -187,7 +187,7 @@ namespace :db do
       end
       
       within release_path do
-        execute :wp, "db", "export", remote_path
+        execute :wp, :db, :export, remote_path
       end
     end
   end
@@ -220,7 +220,7 @@ namespace :db do
       info "Restoring WordPress database #{backup_id} on #{server.user}@#{server.hostname}"
       
       within release_path do
-        execute :wp, "db", "import", remote_path
+        execute :wp, :db, :import, remote_path
       end
     end
   end

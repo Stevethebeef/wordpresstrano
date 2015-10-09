@@ -6,13 +6,9 @@ namespace :webroot do
     next unless remote_path
     
     on roles(:app) do |server|
-      if test("[ -d #{remote_path} ]")
-        execute :rm, "-rf", remote_path
-      end
-      
       info "Symlinking the current release into the website root on #{server.user}@#{server.hostname}"
       
-      execute :ln, "-nfs", release_path, remote_path
+      execute :rm, "-rf", remote_path, "&&", :ln, "-nfs", release_path, remote_path
     end
   end
   

@@ -45,7 +45,7 @@ namespace :db do
     
     on roles(:app) do |server|
       within release_path do
-        if test("[ \"#{database_name}\" == $(mysqlshow --user=\"#{database_username}\" --password=\"#{database_password}\" #{database_name} | grep -v Wildcard | grep -o #{database_name}) ]")
+        if test("[ \"#{database_name.gsub!('$', '\$')}\" == $(mysqlshow --user=\"#{database_username.gsub!('$', '\$')}\" --password=\"#{database_password.gsub!('$', '\$')}\" #{database_name.gsub!('$', '\$')} | grep -v Wildcard | grep -o #{database_name.gsub!('$', '\$')}) ]")
           error "The MySQL database already exists on #{server.user}@#{server.hostname}"
           
           next
@@ -73,7 +73,7 @@ namespace :db do
     
     on roles(:app) do |server|
       within release_path do
-        unless test("[ \"#{database_name}\" == $(mysqlshow --user=\"#{database_username}\" --password=\"#{database_password}\" #{database_name} | grep -v Wildcard | grep -o #{database_name}) ]")
+        unless test("[ \"#{database_name.gsub!('$', '\$')}\" == $(mysqlshow --user=\"#{database_username.gsub!('$', '\$')}\" --password=\"#{database_password.gsub!('$', '\$')}\" #{database_name.gsub!('$', '\$')} | grep -v Wildcard | grep -o #{database_name.gsub!('$', '\$')}) ]")
           error "The MySQL database does not exist on #{server.user}@#{server.hostname}"
           
           next

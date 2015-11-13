@@ -19,17 +19,11 @@ before "wp:core:remove", "deploy:safety_check"
 # Check if maintenance mode should be enabled before pushing the database
 before "db:push", "maintenance:enable_if_previous_deployment"
 
-# Create the MySQL database before pushing content to it
-before "db:push", "db:create"
-
 # Backup the database before pushing
 before "db:push", "db:backup"
 
 # Check if maintenance mode should be enabled before restoring the database
 before "db:restore", "maintenance:enable_if_previous_deployment"
-
-# Create the database before restoring
-before "db:restore", "db:create"
 
 # Check if there is a previous deployment before performing
 # a partial deployment.
